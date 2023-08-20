@@ -2,43 +2,43 @@ const http = require("http");
 const mime = require("mime");
 const path = require("path");
 const fs = require("fs");
+const url = require("url");
 
-let basepath = process.cwd();
+let basedir = process.cwd();
 
 function getFilenameFromPath(filepath, callback) {
   // Replaces + spaces in encoded URL with URI spaces, then decodes URI
-  filepath = decodeURI(filepath.replace(/\+/g, "%20"));
+  let decfilepath = decodeURI(filepath.replace(/\+/g, "%20"));
 
   // Sterilize and turn into absolute path
-  let filename = path.normalize(basepath + path.sep + filepath);
-  let st;
+  let abspath = path.normalize(basedir + path.sep + decfilepath);
 
   function onStatComplete(err, stats) {
     if (err) {
-      return callback(err, filename);
+      return callback(err, abspath);
     }
 
     if (stats.isDirectory()) {
-      filename = path.normalize(filename + path.sep + "index.html");
-      fs.stat(filename, onStatComplete);
+      abspath = path.normalize(abspath + path.sep + "index.html");
+      fs.stat(abspath, onStatComplete);
       return;
     }
 
     if (stats.isFile()) {
-      return callback(null, filename);
+      return callback(null, abspath);
     } else {
-      return callback(new Error('Unknown File Type'), filename);
+      return callback(new Error('Unknown File Type'), abspath);
     }
   }
 
   // make sure file is still in base directory
-  if (filename.substring(0, basedir.length) != basedir) {
+  if (abspath.substring(0, basedir.length) != basedir) {
     let err = new Error("Not Found");
     err.code = "ENOENT";
-    return callback(err, filename);
+    return callback(err, abspath);
   }
 
-  fs.stat(filename, onStatComplete);
+  fs.stat(abspath, onStatComplete);
 }
 
 // handle http requests
@@ -84,10 +84,10 @@ function httpHandler(request, response) {
   }
 
   // Get the file's path from the request
-  let path = url.parse(request.url).pathname;
+  let filepath = url.parse(request.url).pathname;
 
   // Find the file associated with path
-  getFilenameFromPath(path, onGotFilename);
+  getFilenameFromPath(filepath, onGotFilename);
 }
 
 http.createServer(httpHandler).listen(3490);
