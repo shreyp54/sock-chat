@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const url = require("url");
 
+const PORT = '3490';
 let basedir = process.cwd();
 
 function getFilenameFromPath(filepath, callback) {
@@ -45,7 +46,6 @@ function getFilenameFromPath(filepath, callback) {
 function httpHandler(request, response) {
   // async callback function for when filename found
   function onGotFilename(err, filename) {
-    // handles errors
     function writeError(err) {
       if (err.code == "ENOENT") {
         response.writeHead(404, { "Content-Type": "text/plain" });
@@ -60,15 +60,11 @@ function httpHandler(request, response) {
       }
     }
 
-    if (err) {
-      writeError(err);
-    } else {
-      // If no error yet, readfile
-      fs.readFile(filename, "binary", (err, file) => {
-        if (err) {
-          // Could have error reading file
-          writeError(err);
-        } else {
+    function onOpenFile(err, file){
+      // err opening file
+      if (err){
+        writeError(err);
+      } else {
           // Now file data acquired, so send back to client
 
           // Get MIMEtype of file
@@ -78,16 +74,21 @@ function httpHandler(request, response) {
           response.write(file, "binary");
           response.end();
           console.log("Sending file: " + filename);
-        }
-      });
+      }
+    }
+
+    if (err) {
+      writeError(err);
+    } else {
+      // If no error yet, readfile
+      fs.readFile(filename, "binary", onOpenFile);
     }
   }
 
-  // Get the file's path from the request
   let filepath = url.parse(request.url).pathname;
-
+  
   // Find the file associated with path
   getFilenameFromPath(filepath, onGotFilename);
 }
 
-http.createServer(httpHandler).listen(3490);
+http.createServer(httpHandler).listen(PORT);
