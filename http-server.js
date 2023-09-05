@@ -85,7 +85,7 @@ function httpHandler(request, response) {
     }
   }
 
-  let filepath = url.parse(request.url).pathname;
+  let filepath = new URL(request.url, `http://${response.hostname}/`).pathname;
   
   // Find the file associated with path
   getFilenameFromPath(filepath, onGotFilename);
