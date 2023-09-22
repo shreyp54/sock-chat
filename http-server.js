@@ -2,7 +2,6 @@ const http = require("http");
 const mime = require("mime");
 const path = require("path");
 const fs = require("fs");
-const url = require("url");
 
 const PORT = '3490';
 let basedir = process.cwd();
@@ -51,7 +50,7 @@ function httpHandler(request, response) {
         response.writeHead(404, { "Content-Type": "text/plain" });
         response.write("404 Not Found\n");
         response.end();
-        console.log("Not Found" + filename);
+        console.log("Not Found " + filename);
       } else {
         response.writeHead(500, { "Content-Type": "text/plain" });
         response.write("500 Internal Server Error");
@@ -85,7 +84,7 @@ function httpHandler(request, response) {
     }
   }
 
-  let filepath = new URL(request.url, `http://${response.hostname}/`).pathname;
+  let filepath = new URL(request.url, `http://${request.hostname}/`).pathname;
   
   // Find the file associated with path
   getFilenameFromPath(filepath, onGotFilename);

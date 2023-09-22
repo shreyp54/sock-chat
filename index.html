@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
+        <style>
+            html {
+                font-family: sans-serif;
+            }
 
+            #chat-output {
+                height: 20ex;
+                overflow: auto;
+                border: 1px solid gray;
+            }
+
+            #chat-input {
+                width: 30em;
+            }
+        </style>
     </head>
     <body>
-        <title>Hello World</title>
-        <p>Hello World</p>
+        <div id="chat-output"></div>
+        <input type="text" id="chat-username">
+        <input type="text" id="chat-input">
+        <input type="button" id="chat-send" value="Send">
     </body>
 </html>
