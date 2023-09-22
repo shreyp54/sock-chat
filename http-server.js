@@ -3,7 +3,7 @@ const mime = require("mime");
 const path = require("path");
 const fs = require("fs");
 
-const PORT = '3490';
+const PORT = "3490";
 let basedir = process.cwd();
 
 function getFilenameFromPath(filepath, callback) {
@@ -27,7 +27,7 @@ function getFilenameFromPath(filepath, callback) {
     if (stats.isFile()) {
       return callback(null, abspath);
     } else {
-      return callback(new Error('Unknown File Type'), abspath);
+      return callback(new Error("Unknown File Type"), abspath);
     }
   }
 
@@ -59,20 +59,20 @@ function httpHandler(request, response) {
       }
     }
 
-    function onOpenFile(err, file){
+    function onOpenFile(err, file) {
       // err opening file
-      if (err){
+      if (err) {
         writeError(err);
       } else {
-          // Now file data acquired, so send back to client
+        // Now file data acquired, so send back to client
 
-          // Get MIMEtype of file
-          let mimeType = mime.getType(path.extname(filename));
+        // Get MIMEtype of file
+        let mimeType = mime.getType(path.extname(filename));
 
-          response.writeHead(200, { "Content-Type": mimeType });
-          response.write(file, "binary");
-          response.end();
-          console.log("Sending file: " + filename);
+        response.writeHead(200, { "Content-Type": mimeType });
+        response.write(file, "binary");
+        response.end();
+        console.log("Sending file: " + filename);
       }
     }
 
@@ -85,7 +85,7 @@ function httpHandler(request, response) {
   }
 
   let filepath = new URL(request.url, `http://${request.hostname}/`).pathname;
-  
+
   // Find the file associated with path
   getFilenameFromPath(filepath, onGotFilename);
 }
