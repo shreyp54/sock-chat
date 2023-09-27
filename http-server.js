@@ -7,7 +7,7 @@ const PORT = "3490";
 let basedir = process.cwd();
 
 function getFilenameFromPath(filepath, callback) {
-  // Replaces + spaces in encoded URL with URI spaces, then decodes URI
+  // Replaces + (which is space) in encoded URL with URI spaces, then decodes URI
   let decfilepath = decodeURI(filepath.replace(/\+/g, "%20"));
 
   // Sterilize and turn into absolute path
@@ -31,7 +31,7 @@ function getFilenameFromPath(filepath, callback) {
     }
   }
 
-  // make sure file is still in base directory
+  // make sure path is still in base directory
   if (abspath.substring(0, basedir.length) != basedir) {
     let err = new Error("Not Found");
     err.code = "ENOENT";
@@ -41,9 +41,7 @@ function getFilenameFromPath(filepath, callback) {
   fs.stat(abspath, onStatComplete);
 }
 
-// handle http requests
 function httpHandler(request, response) {
-  // async callback function for when filename found
   function onGotFilename(err, filename) {
     function writeError(err) {
       if (err.code == "ENOENT") {
@@ -65,8 +63,6 @@ function httpHandler(request, response) {
         writeError(err);
       } else {
         // Now file data acquired, so send back to client
-
-        // Get MIMEtype of file
         let mimeType = mime.getType(path.extname(filename));
 
         response.writeHead(200, { "Content-Type": mimeType });
@@ -79,14 +75,12 @@ function httpHandler(request, response) {
     if (err) {
       writeError(err);
     } else {
-      // If no error yet, readfile
       fs.readFile(filename, "binary", onOpenFile);
     }
   }
 
   let filepath = new URL(request.url, `http://${request.hostname}/`).pathname;
 
-  // Find the file associated with path
   getFilenameFromPath(filepath, onGotFilename);
 }
 
